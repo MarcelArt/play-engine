@@ -5,7 +5,7 @@ A small scene-based game loop on top of [raylib-go](https://github.com/gen2brain
 You keep using `rl.` directly for drawing. The engine does not wrap raylib.
 
 ```
-go get github.com/MarcelArt/play-engine
+go get github.com/MarcelArt/play-engine@latest
 ```
 
 Requires Go 1.27 and raylib's usual native dependencies (a graphical environment to run).
