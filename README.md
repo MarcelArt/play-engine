@@ -39,8 +39,9 @@ func main() {
 
 Two full games live in `examples/`:
 
-- [`examples/asteroids`](examples/asteroids): wireframe shapes, no asset files. Run it with `go run ./examples/asteroids`.
-- [`examples/asteroids_2d`](examples/asteroids_2d): the same game with sprites and a background, loaded from embedded PNG files. Run it with `go run ./examples/asteroids_2d`.
+- [`examples/asteroids`](examples/asteroids) ([walkthrough](examples/asteroids/README.md)): wireframe shapes, no asset files. Run it with `go run ./examples/asteroids`.
+- [`examples/asteroids_2d`](examples/asteroids_2d) ([walkthrough](examples/asteroids_2d/README.md)): the same game with sprites and a background, loaded from embedded PNG files. Run it with `go run ./examples/asteroids_2d`.
+- [`examples/walk3d`](examples/walk3d) ([walkthrough](examples/walk3d/README.md)): a first-person 3D walkaround with mouse look, jumping, a pause scene that frees the mouse, and saved display settings. Run it with `go run ./examples/walk3d`.
 
 ## Agent skills
 
@@ -72,6 +73,7 @@ npx skills add MarcelArt/play-engine --skill play-engine -a claude-code -g -y
 | `WithFPS(n)` | Target FPS (default 60) |
 | `WithResizable()` | Allow resizing the window |
 | `WithFPSCounter()` | Draw the FPS counter on top |
+| `WithMSAA()` | 4× multisampling; smooths polygon edges in 3D |
 | `WithBackground(color)` | Clear color (default black) |
 | `WithExitKey(key)` | Key that quits; `0` disables it (default Escape) |
 | `WithFixedStep(seconds)` | `FixedUpdate` interval (default 1/60) |
@@ -193,6 +195,15 @@ ctx.Input.Axis(actionLeft, actionRight)     // -1, 0 or 1
 ctx.Input.Bind(actionJump, input.Keys(rl.KeyW)) // rebind at runtime
 ```
 
+For analog input there are two more calls:
+
+```go
+ctx.Input.MouseDelta()            // pixels moved this frame (for mouse look)
+ctx.Input.Stick(input.LeftStick)  // gamepad 0 stick, each axis -1..1, dead zone removed; zero if no gamepad
+```
+
+Mouse look needs a captured cursor, or the pointer hits the window edge and stops reporting movement. `ctx.SetMouseCaptured(true)` hides and locks it, and `false` releases it. Do it in a scene's `Enter` and `Exit`, so a pause scene can free the mouse for its menu. The first frame after capturing reports a large jump, so ignore that frame's delta (`walk3d` shows how).
+
 ### Saves
 
 `save.Store[T]` stores one value as JSON under the user data directory (`~/.local/share/<app>/<file>` on Linux), namespaced by game so games never overwrite each other.
@@ -269,6 +280,58 @@ store.Save(Prefs{Display: ctx.Display(), Volume: prefs.Volume})
 - Draw and layout with `rl.GetScreenWidth()` and `rl.GetScreenHeight()` instead of constants, so scenes adapt when the size changes.
 - On Wayland the compositor decides where windows go, so centering after a resize is ignored (raylib prints a warning).
 - The `asteroids_2d` example has this wired into its menu: F toggles fullscreen, V toggles vsync, R cycles resolution, and each change is saved to `~/.config/asteroids_2d/settings.json`.
+
+### Cameras
+
+The `camera` package has two ready-made cameras. Import it only when you need one; 2D games that don't pay nothing for the 3D one.
+
+**`camera.Follow2D`** keeps a target centered, with optional smoothing and world bounds. It replaces hand-written follow-and-clamp code:
+
+```go
+cam := camera.NewFollow2D(1)          // zoom 1
+cam.Smooth = 8                        // 1/seconds; 0 snaps
+cam.SetBounds(rl.NewRectangle(0, 0, worldW, worldH))
+cam.Snap(playerPos)                   // jump to the player when a level loads
+
+// in Update:
+cam.Update(playerPos, dt)
+
+// in Draw:
+cam.Begin()
+drawWorld()
+cam.End()
+drawHUD()
+
+cam.ScreenToWorld(rl.GetMousePosition()) // for picking
+```
+
+- It re-centers on the current window size every update, so resizing or toggling fullscreen needs no extra code.
+- A world smaller than the window is centered instead of clamped.
+- Smoothing is frame-rate independent: the camera trails by the same amount at 60 and at 144 FPS.
+
+**`camera.FirstPerson`** is an eye-level 3D camera driven by yaw and pitch:
+
+```go
+cam := camera.NewFirstPerson(rl.NewVector3(0, 1.7, 0), 70) // eye position, vertical FOV in degrees
+cam.Sensitivity = 0.0025                                  // radians per pixel
+
+// in Update:
+d := ctx.Input.MouseDelta()
+cam.Look(d.X, d.Y)                          // mouse right turns right, mouse down looks down
+cam.SetEye(rl.Vector3Add(feet, rl.NewVector3(0, 1.7, 0)))
+move := rl.Vector3Scale(cam.Forward(), 1)   // flat direction: walking doesn't climb or dive
+strafe := cam.Right()
+
+// in Draw:
+cam.Begin()
+drawWorld()
+cam.End()
+drawHUD()
+```
+
+- Coordinates follow raylib: **Y is up** and the world is right-handed. Yaw 0 looks down -Z and positive yaw turns left. Pitch is clamped just short of straight up and down.
+- `Direction()` is the full look vector, `Forward()` and `Right()` are flattened to the ground plane, and `Turn(yaw, pitch)` takes radians for stick input scaled by `dt`.
+- `FirstPerson.Camera` is a plain `rl.Camera3D`, so you can use it directly with raylib calls such as ray picking.
 
 ### Entities (optional)
 

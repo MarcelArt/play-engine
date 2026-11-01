@@ -54,6 +54,9 @@ func (g *Game) Run(start string) error {
 	if g.cfg.Fullscreen {
 		flags |= rl.FlagFullscreenMode
 	}
+	if g.cfg.MSAA {
+		flags |= rl.FlagMsaa4xHint
+	}
 	rl.SetConfigFlags(flags)
 	g.ctx.display = Display{
 		Width: g.cfg.Width, Height: g.cfg.Height, Fullscreen: g.cfg.Fullscreen,

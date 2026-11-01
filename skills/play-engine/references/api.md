@@ -13,6 +13,7 @@ Module: `github.com/MarcelArt/play-engine`
 | `WithFPS(n int32)` | target FPS, default 60 |
 | `WithResizable()` | resizable window |
 | `WithFPSCounter()` | draw FPS on top |
+| `WithMSAA()` | 4× multisampling |
 | `WithBackground(rl.Color)` | clear color, default black |
 | `WithExitKey(key int32)` | quit key, `0` disables, default Escape |
 | `WithFixedStep(seconds float32)` | `FixedUpdate` interval, default 1/60 |
@@ -27,7 +28,7 @@ Module: `github.com/MarcelArt/play-engine`
 
 `Scene` methods: `Enter(ctx)`, `Update(ctx, dt)`, `FixedUpdate(ctx, dt)`, `Draw(ctx)`, `Exit(ctx)`. `Factory` is `func(ctx *Context) Scene`, run on every switch or push so each visit starts fresh.
 
-`Context`: `Name`, `Assets *assets.Manager`, `Input *input.Map`, `Scenes *SceneManager`, `Quit()`, `Display() Display`, `ApplyDisplay(Display)`.
+`Context`: `Name`, `Assets *assets.Manager`, `Input *input.Map`, `Scenes *SceneManager`, `Quit()`, `Display() Display`, `ApplyDisplay(Display)`, `SetMouseCaptured(bool)`, `MouseCaptured() bool`.
 
 `Display{Width, Height int32; Fullscreen, VSync bool; FPS int32}` has JSON tags (`width`, `height`, `fullscreen`, `vsync`, `fps`) so it can be embedded in a settings struct. `FPS` 0 is uncapped. `DefaultDisplay()` is 1280×720 at 60 FPS. `Normalize()` clamps to at least 320×200 and a non-negative FPS. `ApplyDisplay` changes the open window immediately (vsync, FPS, fullscreen, windowed size, centering) and records it for `Display()`. `CommonResolutions` and `NextResolution(w, h)` support a settings menu.
 
@@ -50,12 +51,17 @@ assets.Manifest{
 ## input
 
 - `input.Action` is a string type. `input.Binding{Keys []int32, MouseButtons []rl.MouseButton, GamepadButtons []int32}`; `input.Keys(keys...)` is the keyboard shorthand. Gamepad 0 is read.
-- `Map`: `Down`, `Pressed`, `Released`, `Axis(neg, pos) float32` (−1, 0, 1), `Bind(action, binding)`.
+- `Map`: `Down`, `Pressed`, `Released`, `Axis(neg, pos) float32` (−1, 0, 1), `Bind(action, binding)`, `MouseDelta() rl.Vector2` (pixels this frame), `Stick(input.LeftStick | input.RightStick) rl.Vector2` (gamepad 0, −1..1 per axis, dead zone 0.15, zero when no gamepad).
 
 ## save
 
 - `save.New[T](app, file) (*Store[T], error)` stores JSON under the user data dir (`~/.local/share/<app>/<file>` on Linux); `save.NewAt[T](path)` takes an explicit path.
 - `Load() (T, error)` returns `save.ErrNotFound` when absent and a different error when corrupt. `LoadOr(def T) T`. `Save(v T) error` writes atomically. `Path()`.
+
+## camera
+
+- `camera.NewFollow2D(zoom) *Follow2D`: fields `Camera rl.Camera2D`, `Smooth float32` (1/s, 0 snaps), `Bounds *rl.Rectangle`. Methods `SetBounds(rect)`, `Snap(target)`, `Update(target, dt)`, `Begin()`, `End()`, `ScreenToWorld(p)`, `WorldToScreen(p)`. Re-centers on the current window size each update; a world smaller than the screen is centered.
+- `camera.NewFirstPerson(eye rl.Vector3, fovy float32) *FirstPerson`: fields `Camera rl.Camera3D`, `Yaw`, `Pitch` (radians), `Sensitivity` (radians per pixel). Methods `Look(dx, dy)` (mouse pixels), `Turn(yaw, pitch)` (radians), `SetEye`, `Eye`, `Direction`, `Forward`, `Right` (flat), `Begin()`, `End()`. Y up, right-handed; yaw 0 looks down -Z, positive yaw turns left; pitch clamped to ±89°.
 
 ## settings
 
@@ -76,3 +82,4 @@ assets.Manifest{
 
 - `examples/asteroids`: wireframe, no assets.
 - `examples/asteroids_2d`: sprites and background from embedded PNGs.
+- `examples/walk3d`: first-person 3D with mouse look, jumping, pause and saved display settings.

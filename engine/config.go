@@ -14,6 +14,7 @@ type Config struct {
 	Resizable     bool
 	Fullscreen    bool
 	VSync         bool
+	MSAA          bool
 	ShowFPS       bool
 	// FixedStep is the FixedUpdate interval in seconds.
 	FixedStep float32
@@ -41,9 +42,13 @@ func defaultConfig() Config {
 	}
 }
 
-func WithSize(w, h int32) Option         { return func(c *Config) { c.Width, c.Height = w, h } }
-func WithFPS(fps int32) Option           { return func(c *Config) { c.FPS = fps } }
-func WithResizable() Option              { return func(c *Config) { c.Resizable = true } }
+func WithSize(w, h int32) Option { return func(c *Config) { c.Width, c.Height = w, h } }
+func WithFPS(fps int32) Option   { return func(c *Config) { c.FPS = fps } }
+func WithResizable() Option      { return func(c *Config) { c.Resizable = true } }
+
+// WithMSAA turns on 4× multisampling, which smooths polygon edges in 3D.
+func WithMSAA() Option { return func(c *Config) { c.MSAA = true } }
+
 func WithFPSCounter() Option             { return func(c *Config) { c.ShowFPS = true } }
 func WithBackground(col rl.Color) Option { return func(c *Config) { c.Background = col } }
 

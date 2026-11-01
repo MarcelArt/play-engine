@@ -101,3 +101,41 @@ func (m *Map) Axis(neg, pos Action) float32 {
 	}
 	return v
 }
+
+// Stick selects a gamepad thumbstick.
+type Stick uint8
+
+const (
+	LeftStick Stick = iota
+	RightStick
+)
+
+// stickDeadzone ignores the small drift sticks report when released.
+const stickDeadzone = 0.15
+
+// Stick returns the thumbstick position on gamepad 0, each axis in [-1, 1],
+// with the dead zone removed. It is zero when no gamepad is connected.
+func (m *Map) Stick(s Stick) rl.Vector2 {
+	if !rl.IsGamepadAvailable(gamepad) {
+		return rl.Vector2Zero()
+	}
+	ax, ay := int32(rl.GamepadAxisLeftX), int32(rl.GamepadAxisLeftY)
+	if s == RightStick {
+		ax, ay = int32(rl.GamepadAxisRightX), int32(rl.GamepadAxisRightY)
+	}
+	return rl.NewVector2(
+		deadzone(rl.GetGamepadAxisMovement(gamepad, ax)),
+		deadzone(rl.GetGamepadAxisMovement(gamepad, ay)),
+	)
+}
+
+func deadzone(v float32) float32 {
+	if v > -stickDeadzone && v < stickDeadzone {
+		return 0
+	}
+	return v
+}
+
+// MouseDelta returns how far the mouse moved this frame in pixels. Pair it
+// with Context.SetMouseCaptured for first-person look.
+func (m *Map) MouseDelta() rl.Vector2 { return rl.GetMouseDelta() }

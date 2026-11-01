@@ -59,6 +59,14 @@ A pushed overlay (pause, dialog) draws over the scene below, so it draws only it
 
 Embed `engine.Display` (width, height, fullscreen, vsync, fps) in the settings struct. Start the game with `engine.WithDisplay(prefs.Display)`. To change the open window, copy `ctx.Display()`, edit it, call `ctx.ApplyDisplay(d)`, then save `ctx.Display()` with the settings store. Never call raylib's `SetWindowSize`, `ToggleFullscreen` or `SetTargetFPS` directly in a play-engine game; `ApplyDisplay` keeps them in sync with the saved value. Lay out scenes from `rl.GetScreenWidth()/GetScreenHeight()` so they survive a size change. `examples/asteroids_2d` shows the full flow.
 
+## Cameras and 3D
+
+- 2D: `camera.NewFollow2D(zoom)`; set `Smooth` and `SetBounds`, call `Update(target, dt)` each frame, draw between `Begin()` and `End()`. It re-centers on window size changes by itself.
+- 3D first person: `camera.NewFirstPerson(eye, fov)`; `Look(dx, dy)` from `ctx.Input.MouseDelta()`, `SetEye` after moving, `Forward()`/`Right()` for flat walking vectors, draw between `Begin()` and `End()`, HUD after `End()`. Y is up, yaw 0 looks down -Z.
+- Mouse look needs `ctx.SetMouseCaptured(true)`; capture in `Enter`, release in `Exit` (a pause scene releases and re-captures), and skip the first frame's delta after capturing.
+- Add `engine.WithMSAA()` for smooth 3D edges. Gamepad sticks: `ctx.Input.Stick(input.LeftStick|RightStick)`.
+- `examples/walk3d` shows the whole flow.
+
 ## Conventions
 
 - File suffixes: `*.scene.go`, `*.entity.go`; raylib imported as `rl`.
