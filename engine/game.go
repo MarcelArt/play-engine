@@ -44,8 +44,20 @@ func (g *Game) Context() *Context { return g.ctx }
 // Run opens the window, enters the start scene and loops until the game quits.
 // It returns an error if assets fail to load. Cleanup runs even on panic.
 func (g *Game) Run(start string) error {
+	var flags uint32
 	if g.cfg.Resizable {
-		rl.SetConfigFlags(rl.FlagWindowResizable)
+		flags |= rl.FlagWindowResizable
+	}
+	if g.cfg.VSync {
+		flags |= rl.FlagVsyncHint
+	}
+	if g.cfg.Fullscreen {
+		flags |= rl.FlagFullscreenMode
+	}
+	rl.SetConfigFlags(flags)
+	g.ctx.display = Display{
+		Width: g.cfg.Width, Height: g.cfg.Height, Fullscreen: g.cfg.Fullscreen,
+		VSync: g.cfg.VSync, FPS: g.cfg.FPS,
 	}
 	rl.InitWindow(g.cfg.Width, g.cfg.Height, g.title)
 	defer rl.CloseWindow()

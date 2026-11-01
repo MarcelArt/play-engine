@@ -9,6 +9,7 @@ Module: `github.com/MarcelArt/play-engine`
 | Option | Effect |
 |---|---|
 | `WithSize(w, h int32)` | window size, default 1280×720 |
+| `WithDisplay(Display)` | initial size, fullscreen, vsync and FPS from a `Display`; replaces `WithSize` and `WithFPS` |
 | `WithFPS(n int32)` | target FPS, default 60 |
 | `WithResizable()` | resizable window |
 | `WithFPSCounter()` | draw FPS on top |
@@ -26,7 +27,9 @@ Module: `github.com/MarcelArt/play-engine`
 
 `Scene` methods: `Enter(ctx)`, `Update(ctx, dt)`, `FixedUpdate(ctx, dt)`, `Draw(ctx)`, `Exit(ctx)`. `Factory` is `func(ctx *Context) Scene`, run on every switch or push so each visit starts fresh.
 
-`Context`: `Name`, `Assets *assets.Manager`, `Input *input.Map`, `Scenes *SceneManager`, `Quit()`.
+`Context`: `Name`, `Assets *assets.Manager`, `Input *input.Map`, `Scenes *SceneManager`, `Quit()`, `Display() Display`, `ApplyDisplay(Display)`.
+
+`Display{Width, Height int32; Fullscreen, VSync bool; FPS int32}` has JSON tags (`width`, `height`, `fullscreen`, `vsync`, `fps`) so it can be embedded in a settings struct. `FPS` 0 is uncapped. `DefaultDisplay()` is 1280×720 at 60 FPS. `Normalize()` clamps to at least 320×200 and a non-negative FPS. `ApplyDisplay` changes the open window immediately (vsync, FPS, fullscreen, windowed size, centering) and records it for `Display()`. `CommonResolutions` and `NextResolution(w, h)` support a settings menu.
 
 `SceneManager`: `Switch(name)`, `Push(name)`, `Pop()`; all queued until the end of the frame.
 
@@ -53,6 +56,12 @@ assets.Manifest{
 
 - `save.New[T](app, file) (*Store[T], error)` stores JSON under the user data dir (`~/.local/share/<app>/<file>` on Linux); `save.NewAt[T](path)` takes an explicit path.
 - `Load() (T, error)` returns `save.ErrNotFound` when absent and a different error when corrupt. `LoadOr(def T) T`. `Save(v T) error` writes atomically. `Path()`.
+
+## settings
+
+- `settings.New[T](app, file string, defaults T) (*Store[T], error)` stores JSON under the user config dir (`~/.config/<app>/<file>` on Linux); `settings.NewAt[T](path, defaults)` takes an explicit path.
+- `Load() (T, error)` returns the file laid over the defaults. Missing file → defaults + `settings.ErrNotFound`; corrupt file → defaults + the decode error. The value is always usable. Absent keys keep their defaults.
+- `LoadOrDefaults() T`, `Save(v T) error` (atomic), `Reset() (T, error)`, `Defaults() T`, `Path() string`.
 
 ## entity
 

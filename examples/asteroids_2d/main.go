@@ -45,11 +45,15 @@ const (
 	actionShoot  input.Action = "shoot"
 	actionPause  input.Action = "pause"
 	actionSelect input.Action = "select"
+
+	actionFullscreen input.Action = "fullscreen"
+	actionVSync      input.Action = "vsync"
+	actionResolution input.Action = "resolution"
 )
 
 func main() {
-	g := engine.New("asteroids_2d",
-		engine.WithSize(800, 540),
+	g := engine.New(appName,
+		engine.WithDisplay(loadPrefs().Display),
 		engine.WithFPSCounter(),
 		engine.WithAssets(assets.Manifest{
 			Textures: []assets.TextureSpec{
@@ -65,6 +69,10 @@ func main() {
 			actionShoot:  input.Keys(rl.KeySpace),
 			actionPause:  input.Keys(rl.KeyP),
 			actionSelect: input.Keys(rl.KeyEnter),
+
+			actionFullscreen: input.Keys(rl.KeyF),
+			actionVSync:      input.Keys(rl.KeyV),
+			actionResolution: input.Keys(rl.KeyR),
 		}),
 	)
 

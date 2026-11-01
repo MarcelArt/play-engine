@@ -15,7 +15,8 @@ type Context struct {
 	Input  *input.Map
 	Scenes *SceneManager
 
-	quit bool
+	quit    bool
+	display Display
 }
 
 // Quit ends the game after the current frame.

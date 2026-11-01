@@ -26,6 +26,20 @@ func (s *menuScene) Update(ctx *engine.Context, dt float32) {
 	if ctx.Input.Pressed(actionSelect) {
 		ctx.Scenes.Switch(scenePlay)
 	}
+
+	// Each change applies to the open window and is saved to the config file.
+	if ctx.Input.Pressed(actionFullscreen) {
+		changeDisplay(ctx, func(d *engine.Display) { d.Fullscreen = !d.Fullscreen })
+	}
+	if ctx.Input.Pressed(actionVSync) {
+		changeDisplay(ctx, func(d *engine.Display) { d.VSync = !d.VSync })
+	}
+	if ctx.Input.Pressed(actionResolution) {
+		changeDisplay(ctx, func(d *engine.Display) {
+			r := engine.NextResolution(d.Width, d.Height)
+			d.Width, d.Height = r.Width, r.Height
+		})
+	}
 }
 
 func (s *menuScene) Draw(ctx *engine.Context) {
@@ -38,5 +52,9 @@ func (s *menuScene) Draw(ctx *engine.Context) {
 	drawCentered("ASTEROIDS", h/2-30, 48)
 	drawCentered("Enter to play", h/2+30, 24)
 	drawCentered(fmt.Sprintf("High score: %d", s.highScore), h/2+70, 20)
-	drawCentered("Arrows/WASD move, Space shoot, P pause, Esc quit", h-40, 16)
+	drawCentered("Arrows/WASD move, Space shoot, P pause, Esc quit", h-60, 16)
+
+	d := ctx.Display()
+	drawCentered(fmt.Sprintf("F fullscreen: %v   V vsync: %v   R resolution: %dx%d",
+		d.Fullscreen, d.VSync, d.Width, d.Height), h-34, 16)
 }

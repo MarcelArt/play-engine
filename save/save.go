@@ -25,6 +25,7 @@ func New[T any](app, file string) (*Store[T], error) {
 	if err != nil {
 		return nil, err
 	}
+
 	return &Store[T]{path: p}, nil
 }
 

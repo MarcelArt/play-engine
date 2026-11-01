@@ -51,6 +51,14 @@ A pushed overlay (pause, dialog) draws over the scene below, so it draws only it
 
 `save.New[T](ctx.Name, "save.json")` returns a store namespaced by game. Use `LoadOr(default)` for first runs and check the error from `Save`.
 
+## Settings
+
+`settings.New[T](ctx.Name, "settings.json", defaults)` stores preferences in the config directory (`~/.config/<app>/` on Linux), apart from save data. Use `LoadOrDefaults()` to read, `Save(v)` to write, `Reset()` to restore defaults. Keys absent from an older file keep their default, so new settings are safe to add. Progress and scores belong in `save`; preferences belong in `settings`.
+
+## Display settings
+
+Embed `engine.Display` (width, height, fullscreen, vsync, fps) in the settings struct. Start the game with `engine.WithDisplay(prefs.Display)`. To change the open window, copy `ctx.Display()`, edit it, call `ctx.ApplyDisplay(d)`, then save `ctx.Display()` with the settings store. Never call raylib's `SetWindowSize`, `ToggleFullscreen` or `SetTargetFPS` directly in a play-engine game; `ApplyDisplay` keeps them in sync with the saved value. Lay out scenes from `rl.GetScreenWidth()/GetScreenHeight()` so they survive a size change. `examples/asteroids_2d` shows the full flow.
+
 ## Conventions
 
 - File suffixes: `*.scene.go`, `*.entity.go`; raylib imported as `rl`.

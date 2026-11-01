@@ -12,6 +12,8 @@ type Config struct {
 	Width, Height int32
 	FPS           int32
 	Resizable     bool
+	Fullscreen    bool
+	VSync         bool
 	ShowFPS       bool
 	// FixedStep is the FixedUpdate interval in seconds.
 	FixedStep float32
@@ -44,6 +46,16 @@ func WithFPS(fps int32) Option           { return func(c *Config) { c.FPS = fps 
 func WithResizable() Option              { return func(c *Config) { c.Resizable = true } }
 func WithFPSCounter() Option             { return func(c *Config) { c.ShowFPS = true } }
 func WithBackground(col rl.Color) Option { return func(c *Config) { c.Background = col } }
+
+// WithDisplay sets the initial window from a Display, typically one loaded
+// from settings. It replaces WithSize and WithFPS.
+func WithDisplay(d Display) Option {
+	return func(c *Config) {
+		d = d.Normalize()
+		c.Width, c.Height, c.FPS = d.Width, d.Height, d.FPS
+		c.Fullscreen, c.VSync = d.Fullscreen, d.VSync
+	}
+}
 
 // WithExitKey sets the key that quits the game; pass 0 to disable it.
 func WithExitKey(key int32) Option { return func(c *Config) { c.ExitKey = key } }
