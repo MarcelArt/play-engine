@@ -42,6 +42,23 @@ Two full games live in `examples/`:
 - [`examples/asteroids`](examples/asteroids): wireframe shapes, no asset files. Run it with `go run ./examples/asteroids`.
 - [`examples/asteroids_2d`](examples/asteroids_2d): the same game with sprites and a background, loaded from embedded PNG files. Run it with `go run ./examples/asteroids_2d`.
 
+## Agent skills
+
+The repo ships two skills in [`skills/`](skills) that teach coding agents (Claude Code, Cursor, Codex and others) how to use the engine. Install them with [`npx skills`](https://github.com/vercel-labs/skills):
+
+```bash
+npx skills add MarcelArt/play-engine --list          # show what is available
+npx skills add MarcelArt/play-engine                 # install interactively
+npx skills add MarcelArt/play-engine --skill play-engine -a claude-code -g -y
+```
+
+| Skill | Use |
+|---|---|
+| `play-engine` | Add a scene, entity, texture, input action or save to an existing play-engine game, with the API reference |
+| `play-engine-new-game` | Scaffold a new game project on play-engine |
+
+`-g` installs for your user instead of the current project, and `-a` picks the agent. To try them from a local checkout, run `npx skills add ./play-engine` from the folder above it. The repo must be pushed to GitHub for the `MarcelArt/play-engine` form to work.
+
 ## Concepts
 
 ### Game and options
