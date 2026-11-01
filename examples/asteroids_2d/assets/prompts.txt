@@ -1,0 +1,17 @@
+Generated using the built-in image_gen tool with transparent_background=true.
+
+ship.png
+Use case: stylized-concept
+Asset type: standalone PNG sprite for a top-down 2D Asteroids arcade game.
+Primary request: one small agile player spaceship, viewed strictly from directly overhead, nose pointing straight up (negative Y). Compact triangular silhouette, symmetric swept wings, readable metal hull panels and dark cockpit. Clean polished hand-painted game sprite with restrained surface detail and strong light-dark separation readable at 40 pixels tall. Soft overhead lighting, crisp silhouette.
+Composition: one ship only, centered on a square canvas, entire hull visible with 10 percent transparent padding on every side, center of hull at canvas center for rotation.
+Backdrop: genuinely transparent alpha background.
+Constraints: no perspective tilt, no flames or exhaust trails, no shadow outside the hull, no stars, no scene, no labels, no text, no border, no watermark.
+
+asteroid.png
+Use case: stylized-concept
+Asset type: standalone PNG sprite for a top-down 2D Asteroids arcade game, matching a polished hand-painted spaceship sprite.
+Primary request: one irregular roughly circular rocky asteroid viewed directly overhead. Jagged chipped silhouette, broad faceted rocky planes, a few readable impact craters and cracks, natural stone material. Clean polished hand-painted game sprite with restrained detail and strong light-dark separation readable at 80 pixels across. Soft overhead lighting and crisp edges.
+Composition: one asteroid only centered on square canvas, entire rock visible with 10 percent transparent padding on every side, mass centered for sprite rotation.
+Backdrop: genuinely transparent alpha background.
+Constraints: no additional rocks, no debris, no shadow outside the silhouette, no stars, no scene, no labels, no text, no border, no watermark.

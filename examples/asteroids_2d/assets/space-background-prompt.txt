@@ -1,0 +1,8 @@
+Generated using the built-in image_gen tool with transparent_background=false.
+
+Use case: stylized-concept
+Asset type: opaque landscape space background PNG for a top-down 2D Asteroids arcade game.
+Primary request: a quiet deep-space starfield that supports polished hand-painted ship and rocky asteroid sprites.
+Scene/backdrop: dark outer space with scattered tiny distant stars and very faint diffuse interstellar dust, restrained depth, mostly dark empty space throughout the playing field. Subtle natural variation without a bright focal point.
+Style/medium: polished painted game background, understated and atmospheric. Landscape 16:9 composition, full bleed.
+Constraints: keep overall luminance low so small ship, asteroids, bullets, and white HUD text read clearly anywhere. No ships, no foreground asteroids, no planets, no sun, no prominent galaxy, no lens flares, no text, no borders, no watermark. Opaque background, not transparent.
